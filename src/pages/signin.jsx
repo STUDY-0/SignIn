@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword, AuthErrorCodes } from 'firebase/auth';
 import firebaseApp from '../../firebase';
 import styles from '../styles/signin.module.css';
 
@@ -37,12 +37,29 @@ function Signin() {
       .then((userCredential) => {
         // Handle successful sign-in
         const user = userCredential.user;
-        alert("로그인 성공!")
+        alert('로그인 성공!');
         console.log('Successfully signed in:', user);
       })
       .catch((error) => {
         // Handle sign-in error
         console.error('Sign-in error:', error);
+        const errorCode = error.code;
+        let errorMessage = '';
+
+        switch (errorCode) {
+          case AuthErrorCodes.INVALID_EMAIL:
+            errorMessage = '유효하지 않은 이메일 형식입니다.';
+            break;
+          case 'auth/user-not-found':
+          case 'auth/wrong-password':
+            errorMessage = '이메일 또는 비밀번호가 잘못되었습니다.';
+            break;
+          default:
+            errorMessage = '로그인에 실패했습니다.';
+            break;
+        }
+
+        alert(errorMessage);
       });
   };
 
