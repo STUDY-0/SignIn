@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { getAuth, signInWithEmailAndPassword, AuthErrorCodes } from 'firebase/auth';
 import firebaseApp from '../../firebase';
 import styles from '../styles/signin.module.css';
+import Swal from "sweetalert2"
 
 function Signin() {
   const inputRef = useRef(null);
@@ -28,16 +29,42 @@ function Signin() {
     };
   }, []);
 
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
   const placeholders = windowWidth <= 768 ? ['이메일', '비밀번호'] : ['', ''];
 
   const handleSignIn = () => {
+    if (email === '' || password === '') {
+      let errorMessage = ("빈 칸 없이 작성해주세요.")
+
+      Swal.fire({
+        title: "로그인 실패",
+        html: errorMessage,
+        showCancelButton: false,
+        confirmButtonText: "확인",
+        icon: 'warning',
+      })
+      return;
+    }
     const auth = getAuth(firebaseApp);
 
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Handle successful sign-in
         const user = userCredential.user;
-        alert('로그인 성공!');
+        Swal.fire({
+          title: "로그인 성공",
+          html: `
+          로그인에 성공했습니다.
+          `,
+          showCancelButton: false,
+          confirmButtonText: "확인",
+          icon: 'success',
+        })
         console.log('Successfully signed in:', user);
       })
       .catch((error) => {
@@ -59,7 +86,13 @@ function Signin() {
             break;
         }
 
-        alert(errorMessage);
+        Swal.fire({
+          title: "로그인 실패",
+          html: errorMessage,
+          showCancelButton: false,
+          confirmButtonText: "확인",
+          icon: 'warning',
+        })
       });
   };
 
